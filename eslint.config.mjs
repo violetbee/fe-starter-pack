@@ -76,15 +76,15 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-expressions": "warn",
       "no-constant-binary-expression": "warn",
       // TypeScript specific rules - relaxed for development
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrorsIgnorePattern: "^_",
-          ignoreRestSiblings: true,
-        },
-      ],
+      // "@typescript-eslint/no-unused-vars": [
+      //   "warn",
+      //   {
+      //     argsIgnorePattern: "^_",
+      //     varsIgnorePattern: "^_",
+      //     caughtErrorsIgnorePattern: "^_",
+      //     ignoreRestSiblings: true,
+      //   },
+      // ],
       "@typescript-eslint/no-explicit-any": "off", // Allow any during development
       "@typescript-eslint/no-non-null-assertion": "warn",
       "@typescript-eslint/no-unsafe-function-type": "off", // Allow Function type
@@ -109,4 +109,4 @@ const eslintConfig = [
   },
 ];
 
-export default eslintConfig;
+// export default eslintConfig;

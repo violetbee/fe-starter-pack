@@ -23,7 +23,7 @@ pnpm install
 pnpm dev
 ```
 
-Uygulama http://localhost:1996 adresinde çalışacak
+Uygulama http://localhost:3000 adresinde çalışacak
 
 ## Build ve Deployment
 

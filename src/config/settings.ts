@@ -1,7 +1,7 @@
 export const settings = {
-  siteName: process.env.NEXT_PUBLIC_SITE_NAME || "Fe Starter Pack",
+  siteName: process.env.NEXT_PUBLIC_SITE_NAME || "CV Generator",
   siteDescription:
-    process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "Fe Starter Pack Description",
+    process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "Create professional resumes with our easy-to-use CV generator",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://sitename.com",
   apiBase: process.env.NEXT_PUBLIC_API_BASE || "https://backend-api.com",
   landingPage: process.env.NEXT_PUBLIC_LANDING_PAGE || "/",

@@ -1,29 +1,8 @@
-import { settings } from "@/config/settings";
 import axios from "axios";
-import { type DefaultSession, type DefaultUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
-declare module "next-auth" {
-  interface User extends DefaultUser {
-    id: string;
-    role?: string;
-    token?: string;
-  }
-
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      role?: string;
-      token?: string;
-    } & DefaultSession["user"];
-  }
-}
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5001/api/v1";
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -48,47 +27,34 @@ export const authConfig = {
           return null;
         }
 
-        if (
-          credentials.email === settings.auth.demoAccount.email &&
-          credentials.password === settings.auth.demoAccount.password
-        ) {
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve({
-                id: "1",
-                email: settings.auth.demoAccount.email,
-                name: settings.auth.demoAccount.name,
-                role: settings.auth.demoAccount.role,
-              });
-            }, 1000);
+        try {
+          const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+            email: credentials.email,
+            password: credentials.password,
           });
+
+          if (response.data.status === "success" && response.data.result) {
+            const userData = response.data.result;
+            return {
+              id: userData.id,
+              email: userData.email,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              name:
+                `${userData.firstName || ""} ${userData.lastName || ""}`.trim() ||
+                userData.email,
+              role: userData.userRole || "user",
+              token: userData.token,
+            };
+          }
+          return null;
+        } catch (error: any) {
+          console.error(
+            "Authentication error:",
+            error.response?.data || error.message
+          );
+          throw new Error(error.response?.data?.error || "Giriş başarısız");
         }
-
-        // try {
-        //   const response = await axios.post('/auth/login', {
-        //     email: credentials.email,
-        //     password: credentials.password
-        //   }, {
-        //     withCredentials: true
-        //   });
-
-        //   if (response.data.status === 'success') {
-        //     const userData = response.data.result;
-        //     return {
-        //       id: userData.id,
-        //       email: userData.email,
-        //       firstName: userData.firstName,
-        //       lastName: userData.lastName,
-        //       name: `${userData.firstName} ${userData.lastName}`,
-        //       role: userData.role,
-        //       token: userData.token
-        //     };
-        //   }
-        //   return null;
-        // } catch (error) {
-        //   console.error('Authentication error:', error);
-        //   return null;
-        // }
       },
     }),
   ],
@@ -96,6 +62,8 @@ export const authConfig = {
     jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
         token.role = user.role;
         token.accessToken = user.token;
         token.name = user.name;
@@ -106,10 +74,13 @@ export const authConfig = {
     session: ({ session, token }) => {
       if (token && session.user) {
         session.user.id = token.id as string;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
         session.user.role = token.role as string;
         session.user.token = token.accessToken as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
+        session.accessToken = token.accessToken as string;
       }
       return session;
     },
@@ -118,7 +89,7 @@ export const authConfig = {
     signIn: "/auth/login",
     error: "/auth/error",
   },
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   session: {
     strategy: "jwt" as const,
   },
